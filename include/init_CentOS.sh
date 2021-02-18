@@ -51,12 +51,6 @@ EOF
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/${timezone} /etc/localtime
 
-# Set DNS
-#cat > /etc/resolv.conf << EOF
-#nameserver 114.114.114.114
-#nameserver 8.8.8.8
-#EOF
-
 # ip_conntrack table full dropping packets
 [ ! -e "/etc/sysconfig/modules/iptables.modules" ] && { echo -e "modprobe nf_conntrack\nmodprobe nf_conntrack_ipv4" > /etc/sysconfig/modules/iptables.modules; chmod +x /etc/sysconfig/modules/iptables.modules; }
 modprobe nf_conntrack
@@ -95,6 +89,10 @@ net.netfilter.nf_conntrack_tcp_timeout_close_wait = 60
 net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 120
 net.netfilter.nf_conntrack_tcp_timeout_time_wait = 120
 net.netfilter.nf_conntrack_tcp_timeout_established = 3600
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.core.default_qdisc = fq_codel
+net.ipv4.tcp_congestion_control = bbr
 EOF
 sysctl -p
 
@@ -137,6 +135,16 @@ if [ "${iptables_flag}" == 'y' ]; then
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 1337 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 9309 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 3030 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 888 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8888 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 7070 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 7777 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 7180 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 7443 -j ACCEPT
+-A INPUT -p udp -m state --state NEW -m udp --dport 443 -j ACCEPT
 -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 COMMIT
 EOF
